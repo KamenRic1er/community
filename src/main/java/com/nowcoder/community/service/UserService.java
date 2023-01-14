@@ -6,6 +6,7 @@ import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
+import com.nowcoder.community.util.HostHolder;
 import com.nowcoder.community.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import java.util.Random;
 
 @Service
 public class UserService implements CommunityConstant {
+
+    @Autowired
+    private HostHolder hostHolder;
 
     @Autowired
     private UserMapper userMapper;
@@ -166,6 +170,29 @@ public class UserService implements CommunityConstant {
 
     public int updateHeader(int userId, String headerUrl){
         return userMapper.updateHeader(userId,headerUrl);
+    }
+
+    public Map<String, Object> updatePassword(String password, String newPassword) {
+        Map<String, Object> map = new HashMap<>();
+        User user = hostHolder.getUser();
+        // 判断空值
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "原密码不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg", "新密码不能为空");
+            return map;
+        }
+        // 验证密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "原密码不正确");
+            return map;
+        }
+        newPassword = CommunityUtil.md5(newPassword + user.getSalt());
+        userMapper.updatePassword(user.getId(), newPassword);
+        return map;
     }
 
 }
