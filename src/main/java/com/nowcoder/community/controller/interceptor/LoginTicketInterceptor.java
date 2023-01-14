@@ -14,10 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
-/**
- * @Author: 少不入川
- * @Date: 2023/1/13 17:44
- */
 @Component
 public class LoginTicketInterceptor implements HandlerInterceptor {
 
@@ -29,34 +25,34 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 从Cookie中获取凭证
+        // 从cookie中获取凭证
         String ticket = CookieUtil.getValue(request, "ticket");
 
-        if(ticket != null){
+        if (ticket != null) {
             // 查询凭证
             LoginTicket loginTicket = userService.findLoginTicket(ticket);
             // 检查凭证是否有效
-            if(loginTicket != null && loginTicket.getStatus() == 0 && loginTicket.getExpired().after(new Date())){
+            if (loginTicket != null && loginTicket.getStatus() == 0 && loginTicket.getExpired().after(new Date())) {
                 // 根据凭证查询用户
                 User user = userService.findUserById(loginTicket.getUserId());
-                // 让本次请求持有用户
+                // 在本次请求中持有用户
                 hostHolder.setUser(user);
             }
         }
+
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         User user = hostHolder.getUser();
-        if(user != null && modelAndView != null){
+        if (user != null && modelAndView != null) {
             modelAndView.addObject("loginUser", user);
         }
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                Exception ex) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();
     }
 }

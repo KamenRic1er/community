@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class HostHolder {
 
+    /**
+     * todo 这个地方我觉得可以当一个点深挖，引出自己对juc的了解
+     * */
+
     private ThreadLocal<User> users = new ThreadLocal<>();
 
     public void setUser(User user){
