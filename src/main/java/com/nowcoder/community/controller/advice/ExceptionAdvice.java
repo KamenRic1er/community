@@ -17,11 +17,13 @@ import java.io.PrintWriter;
  * @Date: 2023/1/17 11:06
  */
 // 使用annotation参数意味着只扫描使用@Controller注解的Controller
+// 注解@ControllerAdvice表示这是一个控制器增强类，当控制器发生异常且符合类中定义的拦截异常类，将会被拦截
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionAdvice {
 
     public static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
+//    注解ExceptionHandler定义拦截的异常类
     @ExceptionHandler({Exception.class})
     public void handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.error("服务器发生异常：" + e.getMessage());
