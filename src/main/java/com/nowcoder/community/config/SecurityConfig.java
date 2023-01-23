@@ -51,6 +51,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         AUTHORITY_ADMIN,
                         AUTHORITY_MODERATOR
                 )
+                // 只有版主才能置顶，加精
+                .antMatchers(
+                        "/discuss/top",
+                        "/discuss/wonderful"
+                )
+                .hasAnyAuthority(
+                        AUTHORITY_MODERATOR
+                )
+                // 只有管理员才能删帖
+                .antMatchers(
+                        "/discuss/delete",
+                        "/data/**"
+                )
+                .hasAnyAuthority(
+                        AUTHORITY_ADMIN
+                )
                 .anyRequest().permitAll()
                 // 禁用csrf攻击检查
                 // 如果启用太多地方要改了，图省事就禁用了。
