@@ -19,13 +19,15 @@ public class DataInterceptor implements HandlerInterceptor {
     @Autowired
     private HostHolder hostHolder;
 
+
+    // 所有Controller方法执行前记录UV、DAU
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 统计UV
+        // 统计UV（独立访问）
         String ip = request.getRemoteHost();
         dataService.recordUV(ip);
 
-        // 统计DAU
+        // 统计DAU（日活跃用户）
         User user = hostHolder.getUser();
         if (user != null) {
             dataService.recordDAU(user.getId());

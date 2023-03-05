@@ -41,9 +41,9 @@ public class LikeController implements CommunityConstant {
         // 点赞
         likeService.like(user.getId(), entityType, entityId, entityUserId);
 
-        // 数量
+        // 查询实体点赞的数量
         long likeCount = likeService.findEntityLikeCount(entityType, entityId);
-        // 状态
+        // 查询某人对某实体的点赞状态
         int likeStatus = likeService.findEntityLikeStatus(user.getId(), entityType, entityId);
         // 返回的结果
         Map<String, Object> map = new HashMap<>();

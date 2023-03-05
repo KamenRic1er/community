@@ -60,7 +60,8 @@ public class DiscussPostController implements CommunityConstant {
         post.setContent(content);
         post.setCreateTime(new Date());
         // todo
-        // 这里要注意，discusspost-mapper.xml文件中，addDiscussPost方法的语句要声明keyProperty，目的是为了Mybatis执行完插入语句后，自动将自增长值赋值给post的属性id
+        // 这里要注意，discusspost-mapper.xml文件中，addDiscussPost方法的语句要声明keyProperty，目的是为了Mybatis执行完插入语句后，
+        // 自动将自增长值赋值给post的属性id
         // 简单来说就是使用keyProperty可以获取新增行的主键ID。
         // 如果不这样做，那么67行的setEntityId(post.getId());中，post的id将为Null。
         discussPostService.addDiscussPost(post);

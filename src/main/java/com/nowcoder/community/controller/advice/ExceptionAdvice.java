@@ -31,7 +31,10 @@ public class ExceptionAdvice {
             logger.error(element.toString());
         }
 
+        // 获得请求头信息
         String xRequestedWith = request.getHeader("x-requested-with");
+        // XMLHttpRequest是属于AJAX的内容，所以下面的代码意思就是
+        // 如果是ajax请求，就往响应体中写内容（错误返回信息），不是ajax请求就直接重定向跳转错误页面
         if("XMLHttpRequest".equals(xRequestedWith)){
             response.setContentType("application/plain;charset=utf-8");
             PrintWriter writer = response.getWriter();

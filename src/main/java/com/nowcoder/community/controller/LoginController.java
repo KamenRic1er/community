@@ -48,16 +48,22 @@ public class LoginController implements CommunityConstant {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    // 用于跳转注册页面
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisterPage() {
         return "/site/register";
     }
 
+    // 用于跳转登录页面
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
         return "/site/login";
     }
 
+    /**
+     * 账号注册，首先判断账号中的信息是否合理，这一部分在userService.register(user)中完成，发送邮件也是在该方法中处理的。
+     * 最后结果将以Map的形式返回，然后根据map中的信息做出对应的处理。
+     * */
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
@@ -73,6 +79,9 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    /**
+     * 激活邮件中的账号激活请求
+     */
     // http://localhost:8080/community/activation/101/code
     @RequestMapping(path = "/activation/{userId}/{code}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId, @PathVariable("code") String code) {
@@ -90,7 +99,11 @@ public class LoginController implements CommunityConstant {
         return "/site/operate-result";
     }
 
-    @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
+
+    /**
+     * 刷新登录页面的验证码
+     * */
+        @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
     public void getKaptcha(HttpServletResponse response) {
         // 生成验证码
         String text = kaptchaProducer.createText();
@@ -103,6 +116,7 @@ public class LoginController implements CommunityConstant {
         cookie.setPath(contextPath);
         response.addCookie(cookie);
 
+        // 将验证码存入Redis
         String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
         redisTemplate.opsForValue().set(redisKey, text, 60, TimeUnit.SECONDS);
 
@@ -116,6 +130,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    // code是请求时表单带来的验证码
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(String username, String password, String code, boolean rememberme,
                         Model model, HttpServletResponse response, @CookieValue("kaptchaOwner") String kaptchaOwner) {
@@ -131,9 +146,10 @@ public class LoginController implements CommunityConstant {
             return "/site/login";
         }
 
-        // 检查账号,密码
+        // 检查账号,密码，并生成登录凭证存入Redis
         int expiredSeconds = rememberme ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
         Map<String, Object> map = userService.login(username, password, expiredSeconds);
+        // 将ticket存入cookie发给客户端
         if (map.containsKey("ticket")) {
             Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
             cookie.setPath(contextPath);

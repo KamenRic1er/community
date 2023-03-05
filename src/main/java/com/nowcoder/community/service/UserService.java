@@ -100,6 +100,7 @@ public class UserService implements CommunityConstant {
         // http://localhost:8080/community/activation/101/code
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         context.setVariable("url", url);
+        // templateEngine将网页转为html文本
         String content = templateEngine.process("/mail/activation", context);
         mailClient.sendMail(user.getEmail(), "激活账号", content);
 

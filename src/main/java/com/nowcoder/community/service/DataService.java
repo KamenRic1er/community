@@ -38,10 +38,14 @@ public class DataService {
         // 整理该日期范围内的key
         List<String> keyList = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
+        // 设置起始日期
         calendar.setTime(start);
+        // 当前日期如果在end之前则进入循环
         while (!calendar.getTime().after(end)) {
+            // 首先获得key然后将key加入即将合并的集合中
             String key = RedisKeyUtil.getUVKey(df.format(calendar.getTime()));
             keyList.add(key);
+            // 日期加1进行下一轮循环
             calendar.add(Calendar.DATE, 1);
         }
 
