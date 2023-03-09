@@ -50,8 +50,15 @@ public class DiscussPostService {
         // 初始化帖子列表缓存
         postListCache = Caffeine.newBuilder()
                 .maximumSize(maxSize)
+                // 驱逐策略：在最后一次写入缓存后开始计时，在指定的时间（180s）后过期。
                 .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
+                // 当本地缓存未命中的时候，就会调用与LoadingCache关联的CacheLoader中的load方法生成V
                 .build(new CacheLoader<String, List<DiscussPost>>() {
+                    /**
+                     * 使用下面两个注解表示，方法的返回值可以为null，但方法的的参数不可为null
+                     * */
+                    // @Nullable修饰字段、方法和参数，那么字段可为null，方法返回值可为null，参数可为null
+                    // @NonNull修饰字段、方法和参数，那么字段不可为null，方法返回值不可为null，参数不可为null。
                     @Nullable
                     @Override
                     public List<DiscussPost> load(@NonNull String key) throws Exception {
@@ -68,7 +75,6 @@ public class DiscussPostService {
                         int limit = Integer.valueOf(params[1]);
 
                         // 二级缓存: Redis -> mysql
-
                         logger.debug("load post list from DB.");
                         return discussPostMapper.selectDiscussPosts(0, offset, limit, 1);
                     }
@@ -89,6 +95,7 @@ public class DiscussPostService {
 
     public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode) {
         if (userId == 0 && orderMode == 1) {
+            // 首先从本地缓存中读取，如果没有的话，会自动调用与LoadingCache对应的CacheLoad的load方法去数据库查询并存入缓存。
             return postListCache.get(offset + ":" + limit);
         }
 

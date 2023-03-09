@@ -100,6 +100,7 @@ public class MessageController implements CommunityConstant {
         return "/site/letter-detail";
     }
 
+    // 根据conservationId获得接收方用户的id
     private User getLetterTarget(String conversationId){
         String[] ids = conversationId.split("_");
         int id0 = Integer.parseInt(ids[0]);
@@ -112,6 +113,7 @@ public class MessageController implements CommunityConstant {
         }
     }
 
+    // 获得当前用户所有未读信息的id
     private List<Integer> getLetterIds(List<Message> letterList){
         List<Integer> ids = new ArrayList<>();
         if(letterList != null){
@@ -125,6 +127,7 @@ public class MessageController implements CommunityConstant {
 
     }
 
+    // 发送私信
     @RequestMapping(path = "/letter/send", method = RequestMethod.POST)
     @ResponseBody
     public String sendLetter(String toName, String content) {
