@@ -4,8 +4,6 @@ package com.nowcoder.community.util;
  * @Author: 少不入川
  * @Date: 2023/1/17 16:36
  *
- * todo
- * 为什么要使用Redis呢？
  *
  */
 public class RedisKeyUtil {

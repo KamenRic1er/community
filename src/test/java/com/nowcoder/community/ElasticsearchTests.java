@@ -54,15 +54,7 @@ public class ElasticsearchTests {
 
     @Test
     public void testInsertList() {
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(101, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(102, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(103, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(111, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(112, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(131, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(132, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(133, 0, 100));
-        discussRepository.saveAll(discussMapper.selectDiscussPosts(134, 0, 100));
+
     }
 
     @Test
@@ -91,7 +83,6 @@ public class ElasticsearchTests {
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 ).build();
 
-        // todo
         // ElasticsearchRepository底层是由ElasticTemplate.queryForPage(searchQuery, class, SearchResultMapper)
         // 实现的，但是ElasticSearch底层搜索以后会得到两份数据，一份是原始结果，一份是高亮处理过的结果，高亮处理的数据并不会被返回，如果想要高亮的数据返回，我们需要重写SearchResultMapper
         // 中的mapResults方法，将高亮数据重新整合返回。详情可看testSearchByTemplate

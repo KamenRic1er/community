@@ -56,7 +56,7 @@ public class ElasticsearchService {
                 ).build();
 
 
-        // todo 为了使搜索匹配内容高亮，选哟重写SearchResultMapper的mapResults()方法
+        // 为了使搜索匹配内容高亮，选哟重写SearchResultMapper的mapResults()方法
         return elasticTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
             @Override
             public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass, Pageable pageable) {

@@ -22,7 +22,6 @@ public class LikeService {
     // 点赞
     public void like(int userId, int entityType, int entityId, int entityUserId){
 
-        // todo
         // 整个过程会有两次更新操作（对帖子点赞数量的更新和对用户获得点赞数的更新），所以我们需要保证事务性
         // new SessionCallback() 接口 , 重写 execute方法
         redisTemplate.execute(new SessionCallback() {

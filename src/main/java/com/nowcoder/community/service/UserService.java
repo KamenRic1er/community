@@ -210,8 +210,6 @@ public class UserService implements CommunityConstant {
         return userMapper.selectByName(username);
     }
 
-
-    // todo 缓存用户信息，提高访问效率
     // 1.优先从缓存中取值
     private User getCache(int userId) {
         String redisKey = RedisKeyUtil.getUserKey(userId);

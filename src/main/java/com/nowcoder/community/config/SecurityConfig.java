@@ -105,7 +105,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                     }
                 });
 
-        // todo
         // Security底层默认会拦截/logout请求,进行退出处理.
         // Security底层是拦截器，拦截器是在controller之前执行的，所以如果被拦截了，那我们后面的业务（表示ticket失效）就不会执行。
         // 为了让我们后面的业务能够正常执行，我们需要覆盖它默认的逻辑从而达到我们后面的逻辑能够正常执行的目的。

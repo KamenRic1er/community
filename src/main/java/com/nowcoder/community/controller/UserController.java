@@ -132,7 +132,6 @@ public class UserController implements CommunityConstant {
             headerImage.transferTo(dest);
         } catch (IOException e) {
             /**
-             * todo
              * SpringBoot使用全局异常，会自动捕捉异常，当异常出现时会自动返回，异常之后的代码不会再执行
              * 而使用try...catch...结构，异常被捕捉以后代码会继续执行。
              * 如果异常被捕捉以后我们不抛出异常，这个异常就被catch块吃掉，程序虽然继续运行，但是实际上已经出问题了，所以我们需要抛出这个异常让程序中断。
