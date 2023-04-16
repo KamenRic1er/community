@@ -43,6 +43,7 @@ public class DataService {
         // 当前日期如果在end之前则进入循环
         while (!calendar.getTime().after(end)) {
             // 首先获得key然后将key加入即将合并的集合中
+            // uv:1010
             String key = RedisKeyUtil.getUVKey(df.format(calendar.getTime()));
             keyList.add(key);
             // 日期加1进行下一轮循环
@@ -50,6 +51,7 @@ public class DataService {
         }
 
         // 合并这些数据
+        // uv:1010:1012
         String redisKey = RedisKeyUtil.getUVKey(df.format(start), df.format(end));
         redisTemplate.opsForHyperLogLog().union(redisKey, keyList.toArray());
 
@@ -71,9 +73,10 @@ public class DataService {
 
         // 整理该日期范围内的key
         List<byte[]> keyList = new ArrayList<>();
-        Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance();
         calendar.setTime(start);
         while (!calendar.getTime().after(end)) {
+            // dau:1010
             String key = RedisKeyUtil.getDAUKey(df.format(calendar.getTime()));
             keyList.add(key.getBytes());
             calendar.add(Calendar.DATE, 1);
@@ -84,6 +87,7 @@ public class DataService {
         return (long) redisTemplate.execute(new RedisCallback() {
             @Override
             public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                // dau:1010:1012
                 String redisKey = RedisKeyUtil.getDAUKey(df.format(start), df.format(end));
                 // 进行运算，指定运算规则RedisStringCommands.BitOperation.OR
                 connection.bitOp(RedisStringCommands.BitOperation.OR,

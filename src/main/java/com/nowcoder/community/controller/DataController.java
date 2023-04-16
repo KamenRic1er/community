@@ -23,6 +23,7 @@ public class DataController {
     }
 
     // 统计网站UV
+    // DateTimeFormat注解用于将日期格式化
     @RequestMapping(path = "/data/uv", method = RequestMethod.POST)
     public String getUV(@DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
                         @DateTimeFormat(pattern = "yyyy-MM-dd") Date end, Model model) {

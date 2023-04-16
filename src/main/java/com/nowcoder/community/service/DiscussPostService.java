@@ -34,23 +34,25 @@ public class DiscussPostService {
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
 
+    // 过期时间
     @Value("${caffeine.posts.expire-seconds}")
     private int expireSeconds;
 
     // Caffeine核心接口: Cache, LoadingCache, AsyncLoadingCache
 
-    // 帖子列表缓存
+    // 帖子列表缓存类
     private LoadingCache<String, List<DiscussPost>> postListCache;
 
-    // 帖子总数缓存
+    // 帖子总数缓存类
     private LoadingCache<Integer, Integer> postRowsCache;
 
     @PostConstruct
     public void init() {
         // 初始化帖子列表缓存
         postListCache = Caffeine.newBuilder()
+                // 基于空间的驱逐策略：设置缓存最大容量
                 .maximumSize(maxSize)
-                // 驱逐策略：在最后一次写入缓存后开始计时，在指定的时间（180s）后过期。
+                // 基于时间的驱逐策略：在最后一次写入缓存后开始计时，在指定的时间（180s）后过期。
                 .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
                 // 当本地缓存未命中的时候，就会调用与LoadingCache关联的CacheLoader中的load方法生成V
                 .build(new CacheLoader<String, List<DiscussPost>>() {

@@ -52,7 +52,9 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        // 这个键对应的val是set
         String redisKey = RedisKeyUtil.getPostScoreKey();
+        // 获得key的集合（里面存放的是帖子的Id）
         BoundSetOperations operations = redisTemplate.boundSetOps(redisKey);
 
         if (operations.size() == 0) {
@@ -61,6 +63,7 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
         }
 
         logger.info("[任务开始] 正在刷新帖子分数: " + operations.size());
+        // 遍历每一个Key
         while (operations.size() > 0) {
             this.refresh((Integer) operations.pop());
         }

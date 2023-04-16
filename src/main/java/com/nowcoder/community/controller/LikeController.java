@@ -63,7 +63,7 @@ public class LikeController implements CommunityConstant {
         }
 
         if(entityType == ENTITY_TYPE_POST){
-            // 计算帖子热度
+            // 计算帖子热度 post:score
             String redisKey = RedisKeyUtil.getPostScoreKey();
             redisTemplate.opsForSet().add(redisKey, postId);
         }

@@ -4,10 +4,14 @@ import com.nowcoder.community.quartz.AlphaJob;
 import com.nowcoder.community.quartz.PostScoreRefreshJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.Trigger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
+
+import javax.sql.DataSource;
 
 // 配置 -> 数据库 -> 调用
 @Configuration
@@ -43,6 +47,9 @@ public class QuartzConfig {
         return factoryBean;
     }
 
+    // 更多定时任务可以查看：https://blog.csdn.net/MinggeQingchun/article/details/126360682
+    /** https://blog.csdn.net/weixin_38192427/article/details/121111677 */
+
     // 刷新帖子分数任务
     @Bean
     public JobDetailFactoryBean postScoreRefreshJobDetail() {
@@ -66,4 +73,13 @@ public class QuartzConfig {
         return factoryBean;
     }
 
+    //todo 这段代码我不确定会不会出错，所以打一个todo
+    @Bean
+    public SchedulerFactoryBean schedulerFactoryBean() {
+        SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
+        JobDetail postScoreRefreshJobDetail = postScoreRefreshJobDetail().getObject();
+        schedulerFactoryBean.setJobDetails(postScoreRefreshJobDetail);
+        schedulerFactoryBean.setTriggers(postScoreRefreshTrigger(postScoreRefreshJobDetail).getObject());
+        return schedulerFactoryBean;
+    }
 }
