@@ -16,8 +16,7 @@ import java.io.PrintWriter;
  * @Author: 少不入川
  * @Date: 2023/1/17 11:06
  */
-// 使用annotation参数意味着只扫描使用@Controller注解的Controller
-// 注解@ControllerAdvice表示这是一个控制器增强类，当控制器发生异常且符合类中定义的拦截异常类，将会被拦截
+// 增强所有Controller
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionAdvice {
 
