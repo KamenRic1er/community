@@ -21,12 +21,6 @@ public class QuartzConfig {
     // 3.将FactoryBean注入给其他的Bean.
     // 4.该Bean得到的是FactoryBean所管理的对象实例.
 
-    // 配置JobDetail
-    // @Bean
-
-    // 更多定时任务可以查看：https://blog.csdn.net/MinggeQingchun/article/details/126360682
-    /** https://blog.csdn.net/weixin_38192427/article/details/121111677 */
-
     // 刷新帖子分数任务
     @Bean
     public JobDetailFactoryBean postScoreRefreshJobDetail() {
