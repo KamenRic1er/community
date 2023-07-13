@@ -31,9 +31,9 @@ public class ElasticsearchService {
 
     @Autowired
     private DiscussPostRepository discussRepository;
-
     @Autowired
     private ElasticsearchTemplate elasticTemplate;
+
 
     public void saveDiscussPost(DiscussPost post) {
         discussRepository.save(post);

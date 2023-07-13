@@ -17,22 +17,21 @@ public class FollowService implements CommunityConstant {
 
     @Autowired
     private RedisTemplate redisTemplate;
-
     @Autowired
     private UserService userService;
 
     public void follow(int userId, int entityType, int entityId) {
+        // 关注操作需要原子性更新关注者的关注列表和被关注者的粉丝列表
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
                 String followeeKey = RedisKeyUtil.getFolloweeKey(userId, entityType);
                 String followerKey = RedisKeyUtil.getFollowerKey(entityType, entityId);
-
+                // 开启事务
                 operations.multi();
-
                 operations.opsForZSet().add(followeeKey, entityId, System.currentTimeMillis());
                 operations.opsForZSet().add(followerKey, userId, System.currentTimeMillis());
-
+                // 执行事务并返回
                 return operations.exec();
             }
         });
