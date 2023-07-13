@@ -22,6 +22,7 @@ public class MessageInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        // 再返回视图给前端之前，将所有未读消息查出存入视图返回给前端
         User user = hostHolder.getUser();
         if (user != null && modelAndView != null) {
             int letterUnreadCount = messageService.findLetterUnreadCount(user.getId(), null);
