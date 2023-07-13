@@ -26,21 +26,17 @@ import java.util.Date;
 public class PostScoreRefreshJob implements Job, CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(PostScoreRefreshJob.class);
-
     @Autowired
     private RedisTemplate redisTemplate;
-
     @Autowired
     private DiscussPostService discussPostService;
-
     @Autowired
     private LikeService likeService;
-
     @Autowired
     private ElasticsearchService elasticsearchService;
-
     // 牛客纪元
     private static final Date epoch;
+
 
     static {
         try {
@@ -49,6 +45,7 @@ public class PostScoreRefreshJob implements Job, CommunityConstant {
             throw new RuntimeException("初始化牛客纪元失败!", e);
         }
     }
+
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {

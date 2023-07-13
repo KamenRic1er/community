@@ -1,17 +1,15 @@
 package com.nowcoder.community.config;
 
-import com.nowcoder.community.quartz.AlphaJob;
 import com.nowcoder.community.quartz.PostScoreRefreshJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
-import org.quartz.Trigger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 
-import javax.sql.DataSource;
+import java.util.Objects;
 
 // 配置 -> 数据库 -> 调用
 @Configuration
@@ -25,27 +23,6 @@ public class QuartzConfig {
 
     // 配置JobDetail
     // @Bean
-    public JobDetailFactoryBean alphaJobDetail() {
-        JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();
-        factoryBean.setJobClass(AlphaJob.class);
-        factoryBean.setName("alphaJob");
-        factoryBean.setGroup("alphaJobGroup");
-        factoryBean.setDurability(true);
-        factoryBean.setRequestsRecovery(true);
-        return factoryBean;
-    }
-
-    // 配置Trigger(SimpleTriggerFactoryBean, CronTriggerFactoryBean)
-    // @Bean
-    public SimpleTriggerFactoryBean alphaTrigger(JobDetail alphaJobDetail) {
-        SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-        factoryBean.setJobDetail(alphaJobDetail);
-        factoryBean.setName("alphaTrigger");
-        factoryBean.setGroup("alphaTriggerGroup");
-        factoryBean.setRepeatInterval(3000);
-        factoryBean.setJobDataMap(new JobDataMap());
-        return factoryBean;
-    }
 
     // 更多定时任务可以查看：https://blog.csdn.net/MinggeQingchun/article/details/126360682
     /** https://blog.csdn.net/weixin_38192427/article/details/121111677 */
@@ -62,24 +39,24 @@ public class QuartzConfig {
         return factoryBean;
     }
 
+    // SimpleTrigger要比CronTrigger简单，只需要设置简单的循环周期即可，而后者可以通过cron表达式实现定时任务
     @Bean
-    public SimpleTriggerFactoryBean postScoreRefreshTrigger(JobDetail postScoreRefreshJobDetail) {
+    public SimpleTriggerFactoryBean postScoreRefreshTrigger() {
         SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-        factoryBean.setJobDetail(postScoreRefreshJobDetail);
+        // 关联任务
+        factoryBean.setJobDetail(Objects.requireNonNull(postScoreRefreshJobDetail().getObject()));
         factoryBean.setName("postScoreRefreshTrigger");
         factoryBean.setGroup("communityTriggerGroup");
-        factoryBean.setRepeatInterval(1000 * 60 * 5);
         factoryBean.setJobDataMap(new JobDataMap());
+        // 设置执行周期
+        factoryBean.setRepeatInterval(1000 * 60 * 5);
         return factoryBean;
     }
 
-    //todo 这段代码我不确定会不会出错，所以打一个todo
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean() {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
-        JobDetail postScoreRefreshJobDetail = postScoreRefreshJobDetail().getObject();
-        schedulerFactoryBean.setJobDetails(postScoreRefreshJobDetail);
-        schedulerFactoryBean.setTriggers(postScoreRefreshTrigger(postScoreRefreshJobDetail).getObject());
+        schedulerFactoryBean.setTriggers(postScoreRefreshTrigger().getObject());
         return schedulerFactoryBean;
     }
 }
