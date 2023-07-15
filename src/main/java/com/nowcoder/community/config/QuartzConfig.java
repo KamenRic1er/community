@@ -21,7 +21,8 @@ public class QuartzConfig {
     // 3.将FactoryBean注入给其他的Bean.
     // 4.该Bean得到的是FactoryBean所管理的对象实例.
 
-    // 刷新帖子分数任务
+    // https://blog.csdn.net/MinggeQingchun/article/details/126360682
+
     @Bean
     public JobDetailFactoryBean postScoreRefreshJobDetail() {
         JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();
