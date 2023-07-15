@@ -21,6 +21,7 @@ E:\Java\kafka\kafka_2.11-2.3.0
 bin\windows\zookeeper-server-start.bat config\zookeeper.properties
 ### 启动kafka:
 bin\windows\kafka-server-start.bat config\server.properties
+# 项目关闭
 ### 关闭zookeeper服务器
 bin\windows\zookeeper-server-stop.bat
 ### 关闭kafka服务器
