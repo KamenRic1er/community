@@ -27,3 +27,6 @@ bin\windows\zookeeper-server-stop.bat
 ### 关闭kafka服务器
 bin\windows\kafka-server-stop.bat
 
+# 用户密码
+大部分都默认123
+
