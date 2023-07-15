@@ -3,8 +3,10 @@ package com.nowcoder.community.config;
 import com.nowcoder.community.quartz.PostScoreRefreshJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
@@ -23,6 +25,12 @@ public class QuartzConfig {
 
     // https://blog.csdn.net/MinggeQingchun/article/details/126360682
 
+
+    // Quartz中的Job类无法使用依赖注入： https://blog.csdn.net/fly_captain/article/details/84257781
+
+    @Autowired
+    private QuartzJobFactory quartzJobFactory;
+
     @Bean
     public JobDetailFactoryBean postScoreRefreshJobDetail() {
         JobDetailFactoryBean factoryBean = new JobDetailFactoryBean();
@@ -39,19 +47,22 @@ public class QuartzConfig {
     public SimpleTriggerFactoryBean postScoreRefreshTrigger() {
         SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
         // 关联任务
-        factoryBean.setJobDetail(Objects.requireNonNull(postScoreRefreshJobDetail().getObject()));
+        factoryBean.setJobDetail(postScoreRefreshJobDetail().getObject());
         factoryBean.setName("postScoreRefreshTrigger");
         factoryBean.setGroup("communityTriggerGroup");
         factoryBean.setJobDataMap(new JobDataMap());
         // 设置执行周期
-        factoryBean.setRepeatInterval(1000 * 60 * 5);
+        factoryBean.setRepeatInterval(1000 * 60 * 1);
         return factoryBean;
     }
 
-    @Bean
-    public SchedulerFactoryBean schedulerFactoryBean() {
+    @Bean  //中心配置
+    SchedulerFactoryBean schedulerFactoryBean(){
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
+        // 自定义Job工厂，将由Quartz创建的Job类交给Spring管理，从而避免依赖注入失效
+        schedulerFactoryBean.setJobFactory(quartzJobFactory);
         schedulerFactoryBean.setTriggers(postScoreRefreshTrigger().getObject());
         return schedulerFactoryBean;
     }
+
 }
