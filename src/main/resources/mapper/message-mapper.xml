@@ -12,7 +12,7 @@
         from_id, to_id, conversation_id, content, status, create_time
     </sql>
 
-    <select id="selectConversations" resultType="Message">
+    <select id="selectConversations" resultType="com.nowcoder.community.entity.Message">
         select <include refid="selectFields"></include>
         from message
         where id in (
@@ -36,7 +36,7 @@
         ) as m
     </select>
 
-    <select id="selectLetters" resultType="Message">
+    <select id="selectLetters" resultType="com.nowcoder.community.entity.Message">
         select <include refid="selectFields"></include>
         from message
         where status != 2
@@ -65,7 +65,7 @@
         </if>
     </select>
 
-    <insert id="insertMessage" parameterType="Message" keyProperty="id">
+    <insert id="insertMessage" parameterType="com.nowcoder.community.entity.Message" keyProperty="id">
         insert into message(<include refid="insertFields"></include>)
         values(#{fromId},#{toId},#{conversationId},#{content},#{status},#{createTime})
     </insert>
@@ -78,7 +78,7 @@
         </foreach>
     </update>
 
-    <select id="selectLatestNotice" resultType="Message">
+    <select id="selectLatestNotice" resultType="com.nowcoder.community.entity.Message">
         select <include refid="selectFields"></include>
         from message
         where id in (
@@ -108,7 +108,7 @@
         </if>
     </select>
 
-    <select id="selectNotices" resultType="Message">
+    <select id="selectNotices" resultType="com.nowcoder.community.entity.Message">
         select <include refid="selectFields"></include>
         from message
         where status != 2
