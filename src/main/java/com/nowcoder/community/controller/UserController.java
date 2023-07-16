@@ -8,7 +8,6 @@ import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
-import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -85,13 +84,12 @@ public class UserController implements CommunityConstant {
             return CommunityUtil.getJSONString(1, "文件名不能为空!");
         }
 
-        String url = domain + uploadPath;
+        String url = domain + contextPath + uploadPath;
         userService.updateHeader(hostHolder.getUser().getId(), url);
 
         return CommunityUtil.getJSONString(0);
     }
 
-    // 废弃
     @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model){
@@ -127,7 +125,6 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
     }
 
-    // 废弃
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response){
 
