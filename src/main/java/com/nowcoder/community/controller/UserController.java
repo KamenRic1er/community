@@ -131,17 +131,6 @@ public class UserController implements CommunityConstant {
         try {
             headerImage.transferTo(dest);
         } catch (IOException e) {
-            /**
-             * SpringBoot使用全局异常，会自动捕捉异常，当异常出现时会自动返回，异常之后的代码不会再执行
-             * 而使用try...catch...结构，异常被捕捉以后代码会继续执行。
-             * 如果异常被捕捉以后我们不抛出异常，这个异常就被catch块吃掉，程序虽然继续运行，但是实际上已经出问题了，所以我们需要抛出这个异常让程序中断。
-             *
-             * 在这里我们为了记录下日志，但是又不想让后面的代码继续执行，所以抛出异常让程序返回。
-             * 你当然可以写throw e;但是这个e是一般的异常，如果这样抛出的话，你得在这个函数头上用throws来声明，
-             * 比如：public void abc() throws Exception然后调用这个函数的函数也还得这么干，所以一般的处理是把e包装成运行时异常
-             *
-             * 运行时异常的特点是：当程序中可能出现这类异常，即使没有用try-catch语句捕获它，也没有用throws子句声明抛出它，也会编译通过。
-             * */
             logger.error("上传文件失败：" + e.getMessage());
             throw new RuntimeException("上传文件失败", e);
         }
