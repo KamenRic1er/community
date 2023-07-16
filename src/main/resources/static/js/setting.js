@@ -4,7 +4,7 @@ $(function(){
 
 function upload() {
     $.ajax({
-        url: "http://upload-z2.qiniup.com",
+        url: "http://up-cn-east-2.qiniup.com",
         method: "post",
         // 默认情况下浏览器会将表单内容转为字符串，而我们是上传文件，所以需要拒绝转换成字符串
         processData: false,
