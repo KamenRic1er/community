@@ -58,8 +58,6 @@ public class DiscussPostService {
                     /**
                      * 使用下面两个注解表示，方法的返回值可以为null，但方法的的参数不可为null
                      * */
-                    // @Nullable修饰字段、方法和参数，那么字段可为null，方法返回值可为null，参数可为null
-                    // @NonNull修饰字段、方法和参数，那么字段不可为null，方法返回值不可为null，参数不可为null。
                     @Nullable
                     @Override
                     public List<DiscussPost> load(@NonNull String key) throws Exception {

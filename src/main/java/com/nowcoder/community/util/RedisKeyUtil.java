@@ -20,15 +20,6 @@ public class RedisKeyUtil {
     private static final String PREFIX_DAU = "dau";
     private static final String PREFIX_POST = "post";
 
-    // todo 使用Redis避免并发注册所导致的用户名重复的问题
-    // https://www.hxstrive.com/subject/spring_data_redis/1780.htm
-//    private static final String PREFIX_TMP = "tmp";
-//
-//    // 使用Redis解决并发注册
-//    public static String getTmpUserKey() {
-//        return
-//    }
-
     // 某个实体的赞
     // like:entity:entityType:entityId -> set(userId)
     public static String getEntityLikeKey(int entityType, int entityId){
@@ -65,6 +56,11 @@ public class RedisKeyUtil {
     // 用户
     public static String getUserKey(int userId) {
         return PREFIX_USER + SPLIT + userId;
+    }
+
+    // 帖子
+    public static String getPostKey(int postId){
+        return PREFIX_POST + SPLIT + postId;
     }
 
     // 单日UV
