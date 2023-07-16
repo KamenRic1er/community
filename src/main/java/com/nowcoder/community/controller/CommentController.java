@@ -28,18 +28,15 @@ public class CommentController implements CommunityConstant {
 
     @Autowired
     private CommentService commentService;
-
     @Autowired
     private HostHolder hostHolder;
-
     @Autowired
     private EventProducer eventProducer;
-
     @Autowired
     private DiscussPostService discussPostService;
-
     @Autowired
     private RedisTemplate redisTemplate;
+
 
     @RequestMapping(path = "/add/{discussPostId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment){
