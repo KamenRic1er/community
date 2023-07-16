@@ -52,7 +52,7 @@ public class QuartzConfig {
         factoryBean.setGroup("communityTriggerGroup");
         factoryBean.setJobDataMap(new JobDataMap());
         // 设置执行周期
-        factoryBean.setRepeatInterval(1000 * 60 * 1);
+        factoryBean.setRepeatInterval(1000 * 60 * 5);
         return factoryBean;
     }
 
