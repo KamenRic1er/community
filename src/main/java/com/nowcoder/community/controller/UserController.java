@@ -62,19 +62,6 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
-    // 该密钥标识用户身份
-    @Value("${qiniu.key.access}")
-    private String accessKey;
-
-    // 该密钥用来加密数据
-    @Value("${qiniu.key.secret}")
-    private String secretKey;
-
-    @Value("${qiniu.bucket.header.name}")
-    private String headerBucketName;
-
-    @Value("${qiniu.bucket.header.url}")
-    private String headerBucketUrl;
 
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
@@ -84,11 +71,7 @@ public class UserController implements CommunityConstant {
         // 设置成功的响应信息
         StringMap policy = new StringMap();
         policy.put("returnBody", CommunityUtil.getJSONString(0));
-        // 生成上传凭证
-        Auth auth = Auth.create(accessKey, secretKey);
-        String uploadToken = auth.uploadToken(headerBucketName, fileName, 3600, policy);
 
-        model.addAttribute("uploadToken", uploadToken);
         model.addAttribute("fileName", fileName);
 
         return "/site/setting";
@@ -102,7 +85,7 @@ public class UserController implements CommunityConstant {
             return CommunityUtil.getJSONString(1, "文件名不能为空!");
         }
 
-        String url = headerBucketUrl + "/" + fileName;
+        String url = domain + uploadPath;
         userService.updateHeader(hostHolder.getUser().getId(), url);
 
         return CommunityUtil.getJSONString(0);
