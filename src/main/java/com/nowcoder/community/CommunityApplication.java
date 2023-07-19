@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import javax.annotation.PostConstruct;
 
 @SpringBootApplication
+@EnableCaching
 public class CommunityApplication {
 
 	@PostConstruct

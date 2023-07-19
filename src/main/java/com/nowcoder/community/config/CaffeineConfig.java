@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2023/7/15 21:56
  */
 @Configuration
-@EnableCaching
 public class CaffeineConfig {
 
     @Bean
