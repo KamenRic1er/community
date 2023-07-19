@@ -151,7 +151,9 @@ public class DiscussPostService {
 
     @CachePut(value = "post", key = "#id")
     public DiscussPost updateCommentCount(int id, int commentCount) {
+        // 先更新数据库再更新缓存，否则会出现数据不一致的情况
         discussPostMapper.updateCommentCount(id, commentCount);
+
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
         redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
@@ -159,18 +161,30 @@ public class DiscussPostService {
     }
 
     @CachePut(value = "post", key = "#id")
-    public int updateType(int id, int type) {
-        return discussPostMapper.updateType(id, type);
+    public DiscussPost updateType(int id, int type) {
+        discussPostMapper.updateType(id, type);
+        DiscussPost post = discussPostMapper.selectDiscussPostById(id);
+        String redisKey = RedisKeyUtil.getPostKey(id);
+        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        return post;
     }
 
     @CachePut(value = "post", key = "#id")
-    public int updateStatus(int id, int status) {
-        return discussPostMapper.updateStatus(id, status);
+    public DiscussPost updateStatus(int id, int status) {
+        discussPostMapper.updateStatus(id, status);
+        DiscussPost post = discussPostMapper.selectDiscussPostById(id);
+        String redisKey = RedisKeyUtil.getPostKey(id);
+        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        return post;
     }
 
     @CachePut(value = "post", key = "#id")
-    public int updateScore(int id, double score) {
-        return discussPostMapper.updateScore(id, score);
+    public DiscussPost updateScore(int id, double score) {
+        discussPostMapper.updateScore(id, score);
+        DiscussPost post = discussPostMapper.selectDiscussPostById(id);
+        String redisKey = RedisKeyUtil.getPostKey(id);
+        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        return post;
     }
 
 }
