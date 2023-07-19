@@ -5,11 +5,16 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.nowcoder.community.dao.DiscussPostMapper;
 import com.nowcoder.community.entity.DiscussPost;
+import com.nowcoder.community.util.RedisKeyUtil;
 import com.nowcoder.community.util.SensitiveFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -28,23 +33,20 @@ public class DiscussPostService {
     private DiscussPostMapper discussPostMapper;
 
     @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
     private SensitiveFilter sensitiveFilter;
 
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
-
-    // 过期时间
     @Value("${caffeine.posts.expire-seconds}")
     private int expireSeconds;
-
     // Caffeine核心接口: Cache, LoadingCache, AsyncLoadingCache
-
     // 帖子列表缓存类
     private LoadingCache<String, List<DiscussPost>> postListCache;
-
     // 帖子总数缓存类
     private LoadingCache<Integer, Integer> postRowsCache;
-
     @PostConstruct
     public void init() {
         // 初始化帖子列表缓存
@@ -55,23 +57,19 @@ public class DiscussPostService {
                 .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
                 // 当本地缓存未命中的时候，就会调用与LoadingCache关联的CacheLoader中的load方法生成V
                 .build(new CacheLoader<String, List<DiscussPost>>() {
-                    /**
-                     * 使用下面两个注解表示，方法的返回值可以为null，但方法的的参数不可为null
-                     * */
                     @Nullable
                     @Override
                     public List<DiscussPost> load(@NonNull String key) throws Exception {
-                        if (key == null || key.length() == 0) {
+                        if (StringUtils.isNotBlank(key)) {
                             throw new IllegalArgumentException("参数错误!");
                         }
-
                         String[] params = key.split(":");
                         if (params == null || params.length != 2) {
                             throw new IllegalArgumentException("参数错误!");
                         }
 
-                        int offset = Integer.valueOf(params[0]);
-                        int limit = Integer.valueOf(params[1]);
+                        int offset = Integer.parseInt(params[0]);
+                        int limit = Integer.parseInt(params[1]);
 
                         // 二级缓存: Redis -> mysql
                         logger.debug("load post list from DB.");
@@ -90,6 +88,23 @@ public class DiscussPostService {
                         return discussPostMapper.selectDiscussPostRows(key);
                     }
                 });
+    }
+
+
+    /**
+     * 使用Redis缓存DiscussPost，避免重复查询
+     * */
+    // 1.优先从缓存中取值
+    private DiscussPost getDiscussPostFromRedis(int postId) {
+        String redisKey = RedisKeyUtil.getPostKey(postId);
+        return (DiscussPost) redisTemplate.opsForValue().get(redisKey);
+    }
+    // 2.取不到时初始化缓存数据
+    private DiscussPost initRedisCache(int postId) {
+        DiscussPost post = discussPostMapper.selectDiscussPostById(postId);
+        String redisKey = RedisKeyUtil.getPostKey(postId);
+        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        return post;
     }
 
     public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode) {
@@ -115,7 +130,6 @@ public class DiscussPostService {
         if (post == null) {
             throw new IllegalArgumentException("参数不能为空!");
         }
-
         // 转义HTML标记
         post.setTitle(HtmlUtils.htmlEscape(post.getTitle()));
         post.setContent(HtmlUtils.htmlEscape(post.getContent()));
@@ -126,22 +140,35 @@ public class DiscussPostService {
         return discussPostMapper.insertDiscussPost(post);
     }
 
+    @Cacheable(value = "post", key = "#id")
     public DiscussPost findDiscussPostById(int id) {
-        return discussPostMapper.selectDiscussPostById(id);
+        DiscussPost post = getDiscussPostFromRedis(id);
+        if(post == null){
+            post = initRedisCache(id);
+        }
+        return post;
     }
 
-    public int updateCommentCount(int id, int commentCount) {
-        return discussPostMapper.updateCommentCount(id, commentCount);
+    @CachePut(value = "post", key = "#id")
+    public DiscussPost updateCommentCount(int id, int commentCount) {
+        discussPostMapper.updateCommentCount(id, commentCount);
+        DiscussPost post = discussPostMapper.selectDiscussPostById(id);
+        String redisKey = RedisKeyUtil.getPostKey(id);
+        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        return post;
     }
 
+    @CachePut(value = "post", key = "#id")
     public int updateType(int id, int type) {
         return discussPostMapper.updateType(id, type);
     }
 
+    @CachePut(value = "post", key = "#id")
     public int updateStatus(int id, int status) {
         return discussPostMapper.updateStatus(id, status);
     }
 
+    @CachePut(value = "post", key = "#id")
     public int updateScore(int id, double score) {
         return discussPostMapper.updateScore(id, score);
     }

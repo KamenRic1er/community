@@ -39,11 +39,6 @@ public class HomeController implements CommunityConstant {
         page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index?orderMode=" + orderMode);
 
-
-        // 关于Debug的使用
-        // F8一行一行执行
-        // F7进入方法内部
-        // F9到下一个断电
         List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
