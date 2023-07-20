@@ -5,6 +5,8 @@ import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
@@ -20,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserService implements CommunityConstant {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private HostHolder hostHolder;
@@ -60,6 +64,7 @@ public class UserService implements CommunityConstant {
 
     @Cacheable(value = "user", key = "#id")
     public User findUserById(int id) {
+        logger.debug("\n\n--------------- load user " + id +" from Redis ----------------\n");
         User user = getUserFromRedis(id);
         if(user == null){
             user = initRedisCache(id);
