@@ -64,10 +64,12 @@ public class UserService implements CommunityConstant {
 
     @Cacheable(value = "user", key = "#id")
     public User findUserById(int id) {
-        logger.debug("\n\n--------------- load user " + id +" from Redis ----------------\n");
         User user = getUserFromRedis(id);
         if(user == null){
             user = initRedisCache(id);
+            logger.debug("\n\n--------------- load user " + id +" from DB ----------------\n");
+        }else {
+            logger.debug("\n\n--------------- load user " + id +" from Redis ----------------\n");
         }
         return user;
     }
