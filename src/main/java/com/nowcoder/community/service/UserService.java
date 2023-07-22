@@ -62,7 +62,7 @@ public class UserService implements CommunityConstant {
         return user;
     }
 
-    @Cacheable(value = "user", key = "#id")
+    @Cacheable(value = "user", key = "#userId")
     public User findUserById(int id) {
         User user = getUserFromRedis(id);
         if(user == null){
