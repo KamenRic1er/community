@@ -22,11 +22,11 @@ public class ServiceLogAspect {
 
     // 切入点
     @Pointcut("execution(* com.nowcoder.community.service.*.*(..))")
-    public void pointcut() {
+    public void logPointcut() {
 
     }
 
-    @Before("pointcut()")
+    @Before("logPointcut()")
     public void before(JoinPoint joinPoint) {
         // 用户[1.2.3.4],在[xxx],访问了[com.nowcoder.community.service.xxx()].
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
