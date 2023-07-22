@@ -3,11 +3,13 @@ package com.nowcoder.community.controller.interceptor;
 import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CookieUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
@@ -16,10 +18,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Component
-public class LoginTicketInterceptor implements HandlerInterceptor {
+public class LoginTicketInterceptor implements HandlerInterceptor, CommunityConstant {
 
     @Autowired
     private UserService userService;
@@ -44,7 +49,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 hostHolder.setUser(user);
                 // 构建用户认证的结果,并存入SecurityContext,以便于Security进行授权.
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        user, user.getPassword(), userService.getAuthorities(user.getId()));
+                        user, user.getPassword(), getAuthorities(user.getId()));
                 SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
@@ -66,5 +71,26 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();
         SecurityContextHolder.clearContext();
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
+        User user = userService.findUserById(userId);
+
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add(new GrantedAuthority() {
+
+            @Override
+            public String getAuthority() {
+                switch (user.getType()) {
+                    case 1:
+                        return AUTHORITY_ADMIN;
+                    case 2:
+                        return AUTHORITY_MODERATOR;
+                    default:
+                        return AUTHORITY_USER;
+                }
+            }
+        });
+        return list;
     }
 }
