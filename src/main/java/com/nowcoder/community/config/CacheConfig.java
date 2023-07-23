@@ -1,14 +1,12 @@
 package com.nowcoder.community.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nowcoder.community.util.CommonUtil;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2023/7/15 21:56
  */
 @Configuration
-public class CaffeineConfig {
+public class CacheConfig {
 
 
     // 默认CacheManager: 如果未指定cacheManager则使用该配置
