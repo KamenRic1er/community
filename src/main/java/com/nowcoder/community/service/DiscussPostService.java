@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.PostConstruct;
@@ -126,6 +127,7 @@ public class DiscussPostService {
         return discussPostMapper.selectDiscussPostRows(userId);
     }
 
+    @Transactional
     public int addDiscussPost(DiscussPost post) {
         if (post == null) {
             throw new IllegalArgumentException("参数不能为空!");
@@ -140,6 +142,7 @@ public class DiscussPostService {
         return discussPostMapper.insertDiscussPost(post);
     }
 
+    @Transactional
     @Cacheable(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost findDiscussPostById(int id) {
         DiscussPost post = getDiscussPostFromRedis(id);
@@ -152,6 +155,7 @@ public class DiscussPostService {
         return post;
     }
 
+    @Transactional
     @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateCommentCount(int id, int commentCount) {
         // 先更新数据库再更新缓存，否则会出现数据不一致的情况
@@ -163,6 +167,7 @@ public class DiscussPostService {
         return post;
     }
 
+    @Transactional
     @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateType(int id, int type) {
         discussPostMapper.updateType(id, type);
@@ -172,6 +177,7 @@ public class DiscussPostService {
         return post;
     }
 
+    @Transactional
     @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateStatus(int id, int status) {
         discussPostMapper.updateStatus(id, status);
@@ -181,6 +187,7 @@ public class DiscussPostService {
         return post;
     }
 
+    @Transactional
     @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateScore(int id, double score) {
         discussPostMapper.updateScore(id, score);

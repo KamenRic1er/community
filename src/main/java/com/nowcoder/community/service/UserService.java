@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -74,6 +75,7 @@ public class UserService implements CommunityConstant {
         return user;
     }
 
+    @Transactional
     @CachePut(cacheNames = "user", key = "#userId", cacheManager = "userCacheManager")
     public User updateHeader(int userId, String headerUrl){
         userMapper.updateHeader(userId,headerUrl);
@@ -83,6 +85,7 @@ public class UserService implements CommunityConstant {
         return user;
     }
 
+    @Transactional
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
 
@@ -140,6 +143,7 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
+    @Transactional
     public int activation(int userId, String code) {
         User user = userMapper.selectById(userId);
         if (user.getStatus() == 1) {
@@ -152,6 +156,7 @@ public class UserService implements CommunityConstant {
         }
     }
 
+    @Transactional
     public Map<String, Object> login(String username, String password, int expiredSeconds){
         Map<String, Object> map = new HashMap<>();
 
@@ -197,6 +202,7 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
+    @Transactional
     public void logout(String ticket){
         String redisKey = RedisKeyUtil.getTicketKey(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
@@ -209,6 +215,7 @@ public class UserService implements CommunityConstant {
         return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
     }
 
+    @Transactional
     public Map<String, Object> updatePassword(String password, String newPassword) {
         Map<String, Object> map = new HashMap<>();
         User user = hostHolder.getUser();
