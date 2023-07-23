@@ -58,11 +58,11 @@ public class UserService implements CommunityConstant {
     private User initRedisCache(int userId) {
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
-        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, user, 1200, TimeUnit.SECONDS);
         return user;
     }
 
-    @Cacheable(value = "user", key = "#userId")
+    @Cacheable(cacheNames = "user", key = "#userId", cacheManager = "userCacheManager")
     public User findUserById(int userId) {
         User user = getUserFromRedis(userId);
         if(user == null){
@@ -74,12 +74,12 @@ public class UserService implements CommunityConstant {
         return user;
     }
 
-    @CachePut(value = "user", key = "#userId")
+    @CachePut(cacheNames = "user", key = "#userId", cacheManager = "userCacheManager")
     public User updateHeader(int userId, String headerUrl){
         userMapper.updateHeader(userId,headerUrl);
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
-        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, user, 1200, TimeUnit.SECONDS);
         return user;
     }
 
