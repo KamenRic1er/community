@@ -140,16 +140,19 @@ public class DiscussPostService {
         return discussPostMapper.insertDiscussPost(post);
     }
 
-    @Cacheable(value = "post", key = "#id")
+    @Cacheable(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost findDiscussPostById(int id) {
         DiscussPost post = getDiscussPostFromRedis(id);
         if(post == null){
             post = initRedisCache(id);
+            logger.debug("\n\n--------------- load post " + id +" from DB ----------------\n");
+        }else {
+            logger.debug("\n\n--------------- load post " + id +" from Redis ----------------\n");
         }
         return post;
     }
 
-    @CachePut(value = "post", key = "#id")
+    @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateCommentCount(int id, int commentCount) {
         // 先更新数据库再更新缓存，否则会出现数据不一致的情况
         discussPostMapper.updateCommentCount(id, commentCount);
@@ -160,7 +163,7 @@ public class DiscussPostService {
         return post;
     }
 
-    @CachePut(value = "post", key = "#id")
+    @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateType(int id, int type) {
         discussPostMapper.updateType(id, type);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
@@ -169,7 +172,7 @@ public class DiscussPostService {
         return post;
     }
 
-    @CachePut(value = "post", key = "#id")
+    @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateStatus(int id, int status) {
         discussPostMapper.updateStatus(id, status);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
@@ -178,7 +181,7 @@ public class DiscussPostService {
         return post;
     }
 
-    @CachePut(value = "post", key = "#id")
+    @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateScore(int id, double score) {
         discussPostMapper.updateScore(id, score);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
