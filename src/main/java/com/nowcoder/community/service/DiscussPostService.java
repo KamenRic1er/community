@@ -158,7 +158,7 @@ public class DiscussPostService {
     @Transactional
     @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateCommentCount(int id, int commentCount) {
-        // 先更新数据库再更新缓存，否则会出现数据不一致的情况
+        // 先更新数据库再更新缓存，先更新数据库是因为数据库具有持久化的特性，更加可靠！
         discussPostMapper.updateCommentCount(id, commentCount);
 
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
