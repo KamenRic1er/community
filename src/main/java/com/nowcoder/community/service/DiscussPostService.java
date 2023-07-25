@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.nowcoder.community.dao.DiscussPostMapper;
 import com.nowcoder.community.entity.DiscussPost;
+import com.nowcoder.community.util.CommonUtil;
 import com.nowcoder.community.util.RedisKeyUtil;
 import com.nowcoder.community.util.SensitiveFilter;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,8 @@ public class DiscussPostService {
 
     @Autowired
     private SensitiveFilter sensitiveFilter;
+
+    private final long postCacheExpireTime = 60;
 
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
@@ -104,7 +107,7 @@ public class DiscussPostService {
     private DiscussPost initRedisCache(int postId) {
         DiscussPost post = discussPostMapper.selectDiscussPostById(postId);
         String redisKey = RedisKeyUtil.getPostKey(postId);
-        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
         return post;
     }
 
@@ -163,7 +166,7 @@ public class DiscussPostService {
 
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
         return post;
     }
 
@@ -173,7 +176,7 @@ public class DiscussPostService {
         discussPostMapper.updateType(id, type);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
         return post;
     }
 
@@ -183,7 +186,7 @@ public class DiscussPostService {
         discussPostMapper.updateStatus(id, status);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
         return post;
     }
 
@@ -193,7 +196,7 @@ public class DiscussPostService {
         discussPostMapper.updateScore(id, score);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
         return post;
     }
 

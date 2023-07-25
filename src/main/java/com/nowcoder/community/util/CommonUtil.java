@@ -8,7 +8,7 @@ import java.util.Random;
  */
 public class CommonUtil {
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public static long getRandomExpireTime(long expireTime){
         return expireTime + (long) random.nextInt((int)expireTime / 10);
