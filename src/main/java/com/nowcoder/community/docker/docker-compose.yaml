@@ -1,0 +1,48 @@
+version: '3'
+services:
+  zookeeper:
+    image: zookeeper:3.6.3
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper:2888:3888
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - ~/docker/community/mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d/
+      # 报错：World-writable config file, 解决方法是将 cnf 文件在 Windows 中设置为只读。
+      - ./mysql/conf.d/custom.cnf:/etc/mysql/conf.d/custom.cnf
+    ports:
+      - "3306:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: 1017
+  redis:
+    image: redis:5.0
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/redis.conf:/etc/redis/redis.conf
+      - ~/redis/data:/data
+    # 关闭保护模式，允许外部访问Redis服务
+    command: redis-server --protected-mode no
+  kafka:
+    image: kafka:2.13-2.8.0
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./kafka/data:/var/lib/kafka/data
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  elasticsearch:
+    image: elasticsearch:7.15.0
+    ports:
+      - "9300:9300"
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
