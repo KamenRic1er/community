@@ -1,7 +1,7 @@
 version: '3'
 services:
   zookeeper:
-    image: zookeeper:3.6.3
+    image: confluentinc/cp-zookeeper:6.2.1
     ports:
       - "2181:2181"
     environment:
@@ -29,7 +29,7 @@ services:
     # 关闭保护模式，允许外部访问Redis服务
     command: redis-server --protected-mode no
   kafka:
-    image: kafka:2.13-2.8.0
+    image: confluentinc/cp-kafka:6.2.1
     ports:
       - "9092:9092"
     volumes:
@@ -39,9 +39,9 @@ services:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
   elasticsearch:
-    image: elasticsearch:7.15.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
     ports:
-      - "9300:9300"
+      - "9200:9200"
     volumes:
       - ./elasticsearch/data:/usr/share/elasticsearch/data
     environment:
