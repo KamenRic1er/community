@@ -30,3 +30,16 @@ bin\windows\kafka-server-stop.bat
 # 用户密码
 大部分都默认123
 
+
+# docker一键部署
+搭建环境
+Docker
+- 点击[Docker Desktop](https://www.docker.com/products/docker-desktop)下载Windows版本
+- 安装Docker Desktop并启动
+
+Docker Compose
+- 点击[Docker Compose](https://github.com/docker/compose/releases)下载Windows版本（.exe）
+- 安装Docker Compose
+
+编排容器
+- 使用Idea的Plugin，点一下启动即可
