@@ -61,6 +61,8 @@ public class QuartzConfig {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         // 自定义Job工厂，将由Quartz创建的Job类交给Spring管理，从而避免依赖注入失效
         schedulerFactoryBean.setJobFactory(quartzJobFactory);
+
+        // 在调度器中注册Trigger
         schedulerFactoryBean.setTriggers(postScoreRefreshTrigger().getObject());
         return schedulerFactoryBean;
     }
