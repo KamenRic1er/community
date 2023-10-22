@@ -47,7 +47,7 @@ public class UserService implements CommunityConstant {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    private final long userCacheExpireTime = 30;
+    private final long userCacheExpireTime = 180;
 
     /**
      * 使用Redis缓存User，避免重复查询
@@ -62,7 +62,7 @@ public class UserService implements CommunityConstant {
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
         redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(userCacheExpireTime),
-                TimeUnit.MINUTES);
+                TimeUnit.SECONDS);
         return user;
     }
 
@@ -84,7 +84,8 @@ public class UserService implements CommunityConstant {
         userMapper.updateHeader(userId,headerUrl);
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
-        redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(userCacheExpireTime), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(userCacheExpireTime),
+                TimeUnit.SECONDS);
         return user;
     }
 

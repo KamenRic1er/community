@@ -40,7 +40,7 @@ public class DiscussPostService {
     @Autowired
     private SensitiveFilter sensitiveFilter;
 
-    private final long postCacheExpireTime = 60;
+    private final long postCacheExpireTime = 180;
 
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
