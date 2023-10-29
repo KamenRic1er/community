@@ -34,7 +34,6 @@ public class ElasticsearchService {
     @Autowired
     private ElasticsearchTemplate elasticTemplate;
 
-
     public void saveDiscussPost(DiscussPost post) {
         discussRepository.save(post);
     }
@@ -43,20 +42,34 @@ public class ElasticsearchService {
         discussRepository.deleteById(id);
     }
 
+    /**
+     * ES与MySQL的几种概念对应：
+     *
+     * 索引（Index） vs. 数据库（Database）
+     * 类型（Type） vs. 表（Table）
+     * 文档（Document） vs. 行（Row）
+     * 字段（Field） vs. 列（Column）
+     * */
     public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
+
+        // 更多分词方法：https://blog.51cto.com/u_13706148/6076631
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                // 关键词
                 .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
+                // 排序
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
+                // 分页
                 .withPageable(PageRequest.of(current, limit))
+                // 高亮字段
                 .withHighlightFields(
                         new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 ).build();
 
 
-        // 为了使搜索匹配内容高亮，选哟重写SearchResultMapper的mapResults()方法
+        // 为了使搜索匹配内容高亮，选择重写SearchResultMapper的mapResults()方法
         return elasticTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
             @Override
             public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass, Pageable pageable) {
