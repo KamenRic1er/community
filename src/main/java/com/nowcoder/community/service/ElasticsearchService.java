@@ -54,15 +54,13 @@ public class ElasticsearchService {
 
         // 更多分词方法：https://blog.51cto.com/u_13706148/6076631
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
-                // 关键词
+                .withIndices("discusspost")
+                .withTypes("_doc")
                 .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content"))
-                // 排序
                 .withSort(SortBuilders.fieldSort("type").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("score").order(SortOrder.DESC))
                 .withSort(SortBuilders.fieldSort("createTime").order(SortOrder.DESC))
-                // 分页
                 .withPageable(PageRequest.of(current, limit))
-                // 高亮字段
                 .withHighlightFields(
                         new HighlightBuilder.Field("title").preTags("<em>").postTags("</em>"),
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
