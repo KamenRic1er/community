@@ -107,7 +107,8 @@ public class DiscussPostService {
     private DiscussPost initRedisCache(int postId) {
         DiscussPost post = discussPostMapper.selectDiscussPostById(postId);
         String redisKey = RedisKeyUtil.getPostKey(postId);
-        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime),
+                TimeUnit.SECONDS);
         return post;
     }
 
@@ -130,7 +131,7 @@ public class DiscussPostService {
         return discussPostMapper.selectDiscussPostRows(userId);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int addDiscussPost(DiscussPost post) {
         if (post == null) {
             throw new IllegalArgumentException("参数不能为空!");
@@ -145,7 +146,6 @@ public class DiscussPostService {
         return discussPostMapper.insertDiscussPost(post);
     }
 
-    @Transactional
     @Cacheable(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost findDiscussPostById(int id) {
         DiscussPost post = getDiscussPostFromRedis(id);
@@ -161,7 +161,6 @@ public class DiscussPostService {
     @Transactional
     @CachePut(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
     public DiscussPost updateCommentCount(int id, int commentCount) {
-        // 先更新数据库再更新缓存，先更新数据库是因为数据库具有持久化的特性，更加可靠！
         discussPostMapper.updateCommentCount(id, commentCount);
 
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
