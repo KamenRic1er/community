@@ -18,6 +18,9 @@ public class LikeService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Autowired
+    private LikeRecordService likeRecordService;
+
 
     // 点赞
     public void like(int userId, int entityType, int entityId, int entityUserId){

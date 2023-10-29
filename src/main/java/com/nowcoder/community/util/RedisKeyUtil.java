@@ -23,7 +23,7 @@ public class RedisKeyUtil {
     // 某个实体的赞
     // like:entity:entityType:entityId -> set(userId)
     public static String getEntityLikeKey(int entityType, int entityId){
-        return PREFIX_ENTITY_LIKE + SPLIT + entityType + entityId;
+        return PREFIX_ENTITY_LIKE + SPLIT + entityType + SPLIT + entityId;
     }
 
     // 某个用户的赞
