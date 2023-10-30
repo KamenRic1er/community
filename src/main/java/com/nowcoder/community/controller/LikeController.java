@@ -18,18 +18,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.HashMap;
 import java.util.Map;
 
+// todo 除了帖子点赞信息，还有评论点赞信息（set）、关注信息（zset）、用户获得的点赞量（String）都要入库。
+
 @Controller
 public class LikeController implements CommunityConstant {
 
     @Autowired
     private LikeService likeService;
-
     @Autowired
     private HostHolder hostHolder;
-
     @Autowired
     private EventProducer eventProducer;
-
     @Autowired
     private RedisTemplate redisTemplate;
 
