@@ -35,5 +35,12 @@ public class EventProducer {
 
     }
 
+    public void fireEventSequentially(Event event){
+        ListenableFuture<SendResult<String, Object>> future = kafkaTemplate.send(event.getTopic(),
+                0, null, JSONObject.toJSONString(event));
+        future.addCallback(result -> logger.info("生产者成功发送消息到topic:{} partition:{}的消息", result.getRecordMetadata().topic(), result.getRecordMetadata().partition()),
+                ex -> logger.error("生产者发送消失败，原因：{}", ex.getMessage()));
+    }
+
 
 }

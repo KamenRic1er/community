@@ -25,6 +25,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -92,14 +93,15 @@ public class DiscussPostService {
 
 
     /**
-     * 使用Redis缓存DiscussPost，避免重复查询
+     * 使用Redis+Caffeine缓存DiscussPost
+     * 1.优先从缓存中取值
+     * 2.取不到时从Redis中取
+     * 3.Redis中无则初始化缓存数据到Redis+Caffeine
      * */
-    // 1.优先从缓存中取值
     private DiscussPost getDiscussPostFromRedis(int postId) {
         String redisKey = RedisKeyUtil.getPostKey(postId);
         return (DiscussPost) redisTemplate.opsForValue().get(redisKey);
     }
-    // 2.取不到时初始化缓存数据
     private DiscussPost initRedisCache(int postId) {
         DiscussPost post = discussPostMapper.selectDiscussPostById(postId);
         String redisKey = RedisKeyUtil.getPostKey(postId);
@@ -108,12 +110,22 @@ public class DiscussPostService {
         return post;
     }
 
+    @Cacheable(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
+    public DiscussPost findDiscussPostById(int id) {
+        DiscussPost post = getDiscussPostFromRedis(id);
+        if(post == null){
+            log.debug("\n\n--------------- load post " + id +" from DB ----------------\n\n");
+            post = initRedisCache(id);
+        }else {
+            log.debug("\n\n--------------- load post " + id +" from Redis ----------------\n\n");
+        }
+        return post;
+    }
+
     public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode) {
         if (userId == 0 && orderMode == 1) {
-            // 首先从本地缓存中读取，如果没有的话，会自动调用与LoadingCache对应的CacheLoad的load方法去数据库查询并存入缓存。
             return postListCache.get(offset + ":" + limit);
         }
-
         log.debug("load post list from DB.");
         return discussPostMapper.selectDiscussPosts(userId, offset, limit, orderMode);
     }
@@ -122,7 +134,6 @@ public class DiscussPostService {
         if (userId == 0) {
             return postRowsCache.get(userId);
         }
-
         log.debug("load post rows from DB.");
         return discussPostMapper.selectDiscussPostRows(userId);
     }
@@ -140,18 +151,6 @@ public class DiscussPostService {
         post.setContent(sensitiveFilter.filter(post.getContent()));
 
         return discussPostMapper.insertDiscussPost(post);
-    }
-
-    @Cacheable(cacheNames = "post", key = "#id", cacheManager = "postCacheManager")
-    public DiscussPost findDiscussPostById(int id) {
-        DiscussPost post = getDiscussPostFromRedis(id);
-        if(post == null){
-            post = initRedisCache(id);
-            log.debug("\n\n--------------- load post " + id +" from DB ----------------\n");
-        }else {
-            log.debug("\n\n--------------- load post " + id +" from Redis ----------------\n");
-        }
-        return post;
     }
 
     @Transactional

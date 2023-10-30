@@ -62,6 +62,12 @@ public class LikeController implements CommunityConstant {
             eventProducer.fireEvent(event);
         }
 
+        Event event = new Event()
+                .setTopic(TOPIC_LIKE_RECORD)
+                .setUserId(hostHolder.getUser().getId())
+                .setData("postId", postId);
+        eventProducer.fireEventSequentially(event);
+
         if(entityType == ENTITY_TYPE_POST){
             // 计算帖子热度 post:score
             String redisKey = RedisKeyUtil.getPostScoreKey();

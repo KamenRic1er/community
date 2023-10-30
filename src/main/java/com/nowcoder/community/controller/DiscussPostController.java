@@ -27,22 +27,16 @@ public class DiscussPostController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
-
     @Autowired
     private HostHolder hostHolder;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private CommentService commentService;
-
     @Autowired
     private LikeService likeService;
-
     @Autowired
     private EventProducer eventProducer;
-
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -59,10 +53,6 @@ public class DiscussPostController implements CommunityConstant {
         post.setTitle(title);
         post.setContent(content);
         post.setCreateTime(new Date());
-        // 这里要注意，discusspost-mapper.xml文件中，addDiscussPost方法的语句要声明keyProperty，目的是为了Mybatis执行完插入语句后，
-        // 自动将自增长值赋值给post的属性id
-        // 简单来说就是使用keyProperty可以获取新增行的主键ID。
-        // 如果不这样做，那么67行的setEntityId(post.getId());中，post的id将为Null。
         discussPostService.addDiscussPost(post);
 
         // 触发发帖事件
@@ -166,7 +156,9 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
-    // 置顶
+    /**
+     * 置顶操作
+     * */
     @RequestMapping(path = "/top", method = RequestMethod.POST)
     @ResponseBody
     public String setTop(int id) {
@@ -183,7 +175,9 @@ public class DiscussPostController implements CommunityConstant {
         return CommunityUtil.getJSONString(0);
     }
 
-    // 加精
+    /**
+     * 加精操作
+     * */
     @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
     @ResponseBody
     public String setWonderful(int id) {
@@ -204,7 +198,9 @@ public class DiscussPostController implements CommunityConstant {
         return CommunityUtil.getJSONString(0);
     }
 
-    // 删除
+    /**
+     * 删帖操作
+     * */
     @RequestMapping(path = "/delete", method = RequestMethod.POST)
     @ResponseBody
     public String setDelete(int id) {

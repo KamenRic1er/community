@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 
 
+/**
+ * @author 少不入川。
+ */
 @Data
 @TableName("like_record")
 @Builder
@@ -19,6 +22,6 @@ public class LikeRecord {
 
     private Integer postId;
 
-    private Integer likeOrNot;
+    private Integer yesOrNo;
 
 }
