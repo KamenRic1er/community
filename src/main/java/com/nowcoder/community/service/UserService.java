@@ -4,6 +4,7 @@ import com.nowcoder.community.dao.UserMapper;
 import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,33 +22,26 @@ import org.thymeleaf.context.Context;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class UserService implements CommunityConstant {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
     @Autowired
     private HostHolder hostHolder;
-
     @Autowired
     private UserMapper userMapper;
-
     @Autowired
     private MailClient mailClient;
-
     @Autowired
     private TemplateEngine templateEngine;
-
     @Value("${community.path.domain}")
     private String domain;
-
     @Value("${server.servlet.context-path}")
     private String contextPath;
-
     @Autowired
     private RedisTemplate redisTemplate;
 
-    private final long userCacheExpireTime = 180;
+    private static final long USER_CACHE_EXPIRE_TIME = 180;
 
     /**
      * 使用Redis缓存User，避免重复查询
@@ -61,7 +55,7 @@ public class UserService implements CommunityConstant {
     private User initRedisCache(int userId) {
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
-        redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(userCacheExpireTime),
+        redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(USER_CACHE_EXPIRE_TIME),
                 TimeUnit.SECONDS);
         return user;
     }
@@ -71,9 +65,9 @@ public class UserService implements CommunityConstant {
         User user = getUserFromRedis(userId);
         if(user == null){
             user = initRedisCache(userId);
-            logger.debug("\n\n--------------- load user " + userId +" from DB ----------------\n");
+            log.debug("\n\n--------------- load user " + userId +" from DB ----------------\n");
         }else {
-            logger.debug("\n\n--------------- load user " + userId +" from Redis ----------------\n");
+            log.debug("\n\n--------------- load user " + userId +" from Redis ----------------\n");
         }
         return user;
     }
@@ -84,7 +78,7 @@ public class UserService implements CommunityConstant {
         userMapper.updateHeader(userId,headerUrl);
         User user = userMapper.selectById(userId);
         String redisKey = RedisKeyUtil.getUserKey(userId);
-        redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(userCacheExpireTime),
+        redisTemplate.opsForValue().set(redisKey, user, CommonUtil.getRandomExpireTime(USER_CACHE_EXPIRE_TIME),
                 TimeUnit.SECONDS);
         return user;
     }

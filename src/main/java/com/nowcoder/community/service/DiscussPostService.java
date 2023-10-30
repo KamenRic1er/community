@@ -8,6 +8,7 @@ import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.util.CommonUtil;
 import com.nowcoder.community.util.RedisKeyUtil;
 import com.nowcoder.community.util.SensitiveFilter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,22 +27,17 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class DiscussPostService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DiscussPostService.class);
-
     @Autowired
     private DiscussPostMapper discussPostMapper;
-
     @Autowired
     private RedisTemplate redisTemplate;
-
     @Autowired
     private SensitiveFilter sensitiveFilter;
-
-    private final long postCacheExpireTime = 180;
-
+    private static final long POST_CACHE_EXPIRE_TIME = 180;
     @Value("${caffeine.posts.max-size}")
     private int maxSize;
     @Value("${caffeine.posts.expire-seconds}")
@@ -76,7 +72,7 @@ public class DiscussPostService {
                         int limit = Integer.parseInt(params[1]);
 
                         // 二级缓存: Redis -> mysql
-                        logger.debug("load post list from DB.");
+                        log.debug("load post list from DB.");
                         return discussPostMapper.selectDiscussPosts(0, offset, limit, 1);
                     }
                 });
@@ -88,7 +84,7 @@ public class DiscussPostService {
                     @Nullable
                     @Override
                     public Integer load(@NonNull Integer key) throws Exception {
-                        logger.debug("load post rows from DB.");
+                        log.debug("load post rows from DB.");
                         return discussPostMapper.selectDiscussPostRows(key);
                     }
                 });
@@ -107,7 +103,7 @@ public class DiscussPostService {
     private DiscussPost initRedisCache(int postId) {
         DiscussPost post = discussPostMapper.selectDiscussPostById(postId);
         String redisKey = RedisKeyUtil.getPostKey(postId);
-        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime),
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(POST_CACHE_EXPIRE_TIME),
                 TimeUnit.SECONDS);
         return post;
     }
@@ -118,7 +114,7 @@ public class DiscussPostService {
             return postListCache.get(offset + ":" + limit);
         }
 
-        logger.debug("load post list from DB.");
+        log.debug("load post list from DB.");
         return discussPostMapper.selectDiscussPosts(userId, offset, limit, orderMode);
     }
 
@@ -127,7 +123,7 @@ public class DiscussPostService {
             return postRowsCache.get(userId);
         }
 
-        logger.debug("load post rows from DB.");
+        log.debug("load post rows from DB.");
         return discussPostMapper.selectDiscussPostRows(userId);
     }
 
@@ -151,9 +147,9 @@ public class DiscussPostService {
         DiscussPost post = getDiscussPostFromRedis(id);
         if(post == null){
             post = initRedisCache(id);
-            logger.debug("\n\n--------------- load post " + id +" from DB ----------------\n");
+            log.debug("\n\n--------------- load post " + id +" from DB ----------------\n");
         }else {
-            logger.debug("\n\n--------------- load post " + id +" from Redis ----------------\n");
+            log.debug("\n\n--------------- load post " + id +" from Redis ----------------\n");
         }
         return post;
     }
@@ -165,7 +161,8 @@ public class DiscussPostService {
 
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(POST_CACHE_EXPIRE_TIME),
+                TimeUnit.SECONDS);
         return post;
     }
 
@@ -175,7 +172,8 @@ public class DiscussPostService {
         discussPostMapper.updateType(id, type);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(POST_CACHE_EXPIRE_TIME),
+                TimeUnit.SECONDS);
         return post;
     }
 
@@ -185,7 +183,8 @@ public class DiscussPostService {
         discussPostMapper.updateStatus(id, status);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(POST_CACHE_EXPIRE_TIME),
+                TimeUnit.SECONDS);
         return post;
     }
 
@@ -195,7 +194,8 @@ public class DiscussPostService {
         discussPostMapper.updateScore(id, score);
         DiscussPost post = discussPostMapper.selectDiscussPostById(id);
         String redisKey = RedisKeyUtil.getPostKey(id);
-        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(postCacheExpireTime), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(redisKey, post, CommonUtil.getRandomExpireTime(POST_CACHE_EXPIRE_TIME),
+                TimeUnit.SECONDS);
         return post;
     }
 
