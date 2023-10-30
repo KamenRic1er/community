@@ -19,7 +19,9 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfig {
 
 
-    // 默认CacheManager: 如果未指定cacheManager则使用该配置
+    /**
+     * 默认CacheManager: 如果未指定cacheManager则使用该配置
+     * */
     @Primary
     @Bean
     public CacheManager cacheManager(){
