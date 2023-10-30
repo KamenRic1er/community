@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author 少不入川。
+ */
 @Service
 public class ElasticsearchService {
 

@@ -16,6 +16,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,48 +33,42 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+/**
+ * @author 少不入川。
+ */
+@Slf4j
 @Component
 public class EventConsumer implements CommunityConstant {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
-
     @Autowired
     private MessageService messageService;
-
     @Autowired
     private DiscussPostService discussPostService;
-
     @Autowired
     private ElasticsearchService elasticsearchService;
-
     @Value("${wk.image.command}")
     private String wkImageCommand;
-
     @Value("${wk.image.storage}")
     private String wkImageStorage;
-
     @Value("${qiniu.key.access}")
     private String accessKey;
-
     @Value("${qiniu.key.secret}")
     private String secretKey;
-
     @Value("${qiniu.bucket.share.name}")
     private String shareBucketName;
-
     @Autowired
     private ThreadPoolTaskScheduler taskScheduler;
 
     @KafkaListener(topics = {TOPIC_COMMENT, TOPIC_LIKE, TOPIC_FOLLOW})
     public void handleCommentMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
-            logger.error("消息的内容为空!");
+            log.error("消息的内容为空!");
             return;
         }
 
         Event event = JSONObject.parseObject(record.value().toString(), Event.class);
         if (event == null) {
-            logger.error("消息格式错误!");
+            log.error("消息格式错误!");
             return;
         }
 
@@ -103,13 +98,13 @@ public class EventConsumer implements CommunityConstant {
     @KafkaListener(topics = {TOPIC_PUBLISH})
     public void handlePublishMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
-            logger.error("消息的内容为空!");
+            log.error("消息的内容为空!");
             return;
         }
 
         Event event = JSONObject.parseObject(record.value().toString(), Event.class);
         if (event == null) {
-            logger.error("消息格式错误!");
+            log.error("消息格式错误!");
             return;
         }
 
@@ -121,13 +116,13 @@ public class EventConsumer implements CommunityConstant {
     @KafkaListener(topics = {TOPIC_DELETE})
     public void handleDeleteMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
-            logger.error("消息的内容为空!");
+            log.error("消息的内容为空!");
             return;
         }
 
         Event event = JSONObject.parseObject(record.value().toString(), Event.class);
         if (event == null) {
-            logger.error("消息格式错误!");
+            log.error("消息格式错误!");
             return;
         }
 
@@ -138,13 +133,13 @@ public class EventConsumer implements CommunityConstant {
     @KafkaListener(topics = TOPIC_SHARE)
     public void handleShareMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
-            logger.error("消息的内容为空!");
+            log.error("消息的内容为空!");
             return;
         }
 
         Event event = JSONObject.parseObject(record.value().toString(), Event.class);
         if (event == null) {
-            logger.error("消息格式错误!");
+            log.error("消息格式错误!");
             return;
         }
 
@@ -156,9 +151,9 @@ public class EventConsumer implements CommunityConstant {
                 + htmlUrl + " " + wkImageStorage + "/" + fileName + suffix;
         try {
             Runtime.getRuntime().exec(cmd);
-            logger.info("生成长图成功: " + cmd);
+            log.info("生成长图成功: " + cmd);
         } catch (IOException e) {
-            logger.error("生成长图失败: " + e.getMessage());
+            log.error("生成长图失败: " + e.getMessage());
         }
 
         // 启用定时器,监视该图片,一旦生成了,则上传至七牛云.
@@ -194,13 +189,13 @@ public class EventConsumer implements CommunityConstant {
         public void run() {
             // 生成失败
             if (System.currentTimeMillis() - startTime > 30000) {
-                logger.error("执行时间过长,终止任务:" + fileName);
+                log.error("执行时间过长,终止任务:" + fileName);
                 future.cancel(true);
                 return;
             }
             // 上传失败
             if (uploadTimes >= 3) {
-                logger.error("上传次数过多,终止任务:" + fileName);
+                log.error("上传次数过多,终止任务:" + fileName);
                 future.cancel(true);
                 return;
             }
@@ -208,7 +203,7 @@ public class EventConsumer implements CommunityConstant {
             String path = wkImageStorage + "/" + fileName + suffix;
             File file = new File(path);
             if (file.exists()) {
-                logger.info(String.format("开始第%d次上传[%s].", ++uploadTimes, fileName));
+                log.info(String.format("开始第%d次上传[%s].", ++uploadTimes, fileName));
                 // 设置响应信息
                 StringMap policy = new StringMap();
                 policy.put("returnBody", CommunityUtil.getJSONString(0));
@@ -224,16 +219,16 @@ public class EventConsumer implements CommunityConstant {
                     // 处理响应结果
                     JSONObject json = JSONObject.parseObject(response.bodyString());
                     if (json == null || json.get("code") == null || !json.get("code").toString().equals("0")) {
-                        logger.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
+                        log.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
                     } else {
-                        logger.info(String.format("第%d次上传成功[%s].", uploadTimes, fileName));
+                        log.info(String.format("第%d次上传成功[%s].", uploadTimes, fileName));
                         future.cancel(true);
                     }
                 } catch (QiniuException e) {
-                    logger.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
+                    log.info(String.format("第%d次上传失败[%s].", uploadTimes, fileName));
                 }
             } else {
-                logger.info("等待图片生成[" + fileName + "].");
+                log.info("等待图片生成[" + fileName + "].");
             }
         }
     }
