@@ -43,25 +43,29 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- 数据库 -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.16</version>
 		</dependency>
+
+		<!-- Mybatis -->
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
 			<artifactId>mybatis-spring-boot-starter</artifactId>
 			<version>2.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.mybatis</groupId>
+					<artifactId>mybatis</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-boot-starter</artifactId>
 			<version>3.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 		<!-- 发邮件的 -->
@@ -82,6 +86,11 @@
 			<artifactId>hutool-all</artifactId>
 			<version>5.7.17</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- 验证码插件 -->
 		<dependency>
@@ -97,12 +106,6 @@
 			<version>2.0.21</version>
 		</dependency>
 
-		<!-- Redis -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
-
 		<!-- kafka -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -113,6 +116,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+
+		<!-- canal -->
+		<dependency>
+			<groupId>top.javatool</groupId>
+			<artifactId>canal-spring-boot-starter</artifactId>
+			<version>1.2.1-RELEASE</version>
 		</dependency>
 
 		<!-- Spring Security -->
@@ -139,7 +149,6 @@
 		</dependency>
 
 		<!-- Redis + Caffeine 两级缓存 -->
-
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>

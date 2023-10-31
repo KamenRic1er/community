@@ -1,11 +1,19 @@
 # 项目启动
 项目根路径：http://localhost:8080/community/index
-## 启动ES
-直接找到ES路径的bin目录下，点击E:\Java\ElasticSearch\elasticsearch-6.4.3\bin\elasticsearch.bat
+
 ## 启动Redis
 同样的找到Redis启动路径，点击E:\Java\Redis\Redis\windows\Redis-x64-3.2.100\redis-server.exe
 
-
+## 启动canal
+docker run -p 11111:11111 --name canal \
+-e canal.destinations=community \
+-e canal.instance.master.address=192.168.79.1:3306 \
+-e canal.instance.dbUsername=root \
+-e canal.instance.dbPassword=1017 \
+-e canal.instance.connectionCharset=UTF-8 \
+-e canal.instance.tsdb.enable=true \
+-e canal.instance.gtidon=false \
+-d canal/canal-server:v1.1.5
 
 ## 启动服务Kafka
 
@@ -21,6 +29,11 @@ E:\Java\kafka\kafka_2.11-2.3.0
 bin\windows\zookeeper-server-start.bat config\zookeeper.properties
 ### 启动kafka:
 bin\windows\kafka-server-start.bat config\server.properties
+
+
+## 启动ES
+直接找到ES路径的bin目录下，点击E:\Java\ElasticSearch\elasticsearch-6.4.3\bin\elasticsearch.bat
+
 # 项目关闭
 ### 关闭zookeeper服务器
 bin\windows\zookeeper-server-stop.bat
