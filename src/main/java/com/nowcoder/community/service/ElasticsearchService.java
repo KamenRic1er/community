@@ -55,7 +55,15 @@ public class ElasticsearchService {
      * */
     public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
 
-        // 更多分词方法：https://blog.51cto.com/u_13706148/6076631
+        /**
+         * 更多分词方法：https://blog.51cto.com/u_13706148/6076631
+         *
+         * queryStringQuery：不执行分词处理，适用于需要更高级查询功能的情况
+         * matchPhraseQuery：不执行分词处理，用于精确匹配短语或短语的一部分
+         * matchQuery：进行分词处理，拆分为单词，然后搜索文档中包含这些单词的文档
+         * multiMatchQuery：匹配多字段
+         * termQuery：不执行分词处理，用于精确匹配文档中的一个术语
+         */
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withIndices("discusspost")
                 .withTypes("_doc")
